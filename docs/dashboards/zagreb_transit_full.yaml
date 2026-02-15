@@ -1,0 +1,103 @@
+type: sections
+max_columns: 1
+title: Zagreb Transit Full
+path: zagreb-transit-full
+sections:
+  - type: grid
+    cards:
+      - type: markdown
+        title: 0) Full dashboard vodič
+        content: |
+          Ovaj dashboard pokriva sve glavne slučajeve korištenja:
+          - Core health i integracijski status
+          - Ručni planner (route -> direction -> from -> to)
+          - Station board i Nearby board
+          - Dynamic watch outpute
+
+          Dashboard je namjerno **općenit** i bez privatnih presetova.
+
+      - type: entities
+        title: Core status
+        entities:
+          - entity: sensor.zagreb_transport_feed_version_active
+          - entity: sensor.zagreb_transport_feed_valid_from
+          - entity: sensor.zagreb_transport_feed_valid_to
+          - entity: sensor.zagreb_transport_feed_source
+          - entity: sensor.zagreb_transport_realtime_status
+          - entity: sensor.zagreb_transport_realtime_last_timestamp
+          - entity: sensor.zagreb_transport_watch_registry
+          - entity: sensor.zagreb_transport_debug_info
+
+      - type: markdown
+        title: Core status objašnjenje
+        content: |
+          - `feed_*` senzori: aktivna GTFS verzija i validnost datuma.
+          - `realtime_*`: stanje i zadnji timestamp RT feeda.
+          - `watch_registry`: pregled svih dinamičkih watch entiteta.
+
+      - type: entities
+        title: Manual planner
+        entities:
+          - entity: select.zet_route_mode
+          - entity: select.zet_route
+          - entity: select.zet_od_direction
+          - entity: select.zet_from_stop
+          - entity: select.zet_to_stop
+          - entity: number.zet_window_minutes
+          - entity: sensor.zagreb_transport_next_trip_od_do
+
+      - type: markdown
+        title: Manual planner objašnjenje
+        content: |
+          Koristi ručne select/number kontrole za jednokratni upit relacije.
+          `sensor.zagreb_transport_next_trip_od_do` vraća iduće vožnje u zadanom prozoru.
+
+      - type: entities
+        title: Station board
+        entities:
+          - entity: select.zet_station
+          - entity: select.zet_board_route
+          - entity: select.zet_direction
+          - entity: number.zet_window_minutes
+          - entity: sensor.zagreb_transport_station_direction_board
+
+      - type: markdown
+        title: Station board objašnjenje
+        content: |
+          Station board prikazuje polaske za odabranu stanicu.
+          `direction` i `board_route` su opcionalni filteri.
+
+      - type: entities
+        title: Nearby board
+        entities:
+          - entity: select.zet_reference_person
+          - entity: number.zet_nearby_radius_meters
+          - entity: number.zet_window_minutes
+          - entity: sensor.zagreb_transport_nearby_board
+
+      - type: markdown
+        title: Nearby board objašnjenje
+        content: |
+          Nearby board računa najbliže stanice oko odabrane reference.
+          Ako Recorder reže atribute, koristi `stops_total/departures_total/attributes_truncated`.
+
+      - type: markdown
+        title: Dynamic watches detalji
+        content: |
+          {% set rows = state_attr('sensor.zagreb_transport_watch_registry', 'watches') or [] %}
+          {% if rows | count == 0 %}
+          Nema watch entiteta.
+          {% else %}
+          {% for w in rows %}
+          {% set deps = state_attr(w.entity_id, 'departures') or [] %}
+          **{{ w.name }}** ({{ w.entity_id }})
+          {% if deps | count == 0 %}
+          - nema polazaka u prozoru
+          {% else %}
+          {% for d in deps[:8] %}
+          - {{ d.line | default('?') }} | {{ d.direction | default('?') }} | za {{ d.minutes | default('?') }} min
+          {% endfor %}
+          {% endif %}
+
+          {% endfor %}
+          {% endif %}

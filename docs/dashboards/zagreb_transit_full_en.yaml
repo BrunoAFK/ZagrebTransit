@@ -1,0 +1,103 @@
+type: sections
+max_columns: 1
+title: Zagreb Transit Full (EN)
+path: zagreb-transit-full-en
+sections:
+  - type: grid
+    cards:
+      - type: markdown
+        title: 0) Full dashboard guide
+        content: |
+          This dashboard covers main usage scenarios:
+          - Core health and integration status
+          - Manual planner (route -> direction -> from -> to)
+          - Station board and Nearby board
+          - Dynamic watch outputs
+
+          The dashboard is intentionally **generic** and does not include private presets.
+
+      - type: entities
+        title: Core status
+        entities:
+          - entity: sensor.zagreb_transport_feed_version_active
+          - entity: sensor.zagreb_transport_feed_valid_from
+          - entity: sensor.zagreb_transport_feed_valid_to
+          - entity: sensor.zagreb_transport_feed_source
+          - entity: sensor.zagreb_transport_realtime_status
+          - entity: sensor.zagreb_transport_realtime_last_timestamp
+          - entity: sensor.zagreb_transport_watch_registry
+          - entity: sensor.zagreb_transport_debug_info
+
+      - type: markdown
+        title: Core status explanation
+        content: |
+          - `feed_*` sensors: active GTFS version and date validity.
+          - `realtime_*`: realtime status and last timestamp.
+          - `watch_registry`: list of all dynamic watch entities.
+
+      - type: entities
+        title: Manual planner
+        entities:
+          - entity: select.zet_route_mode
+          - entity: select.zet_route
+          - entity: select.zet_od_direction
+          - entity: select.zet_from_stop
+          - entity: select.zet_to_stop
+          - entity: number.zet_window_minutes
+          - entity: sensor.zagreb_transport_next_trip_od_do
+
+      - type: markdown
+        title: Manual planner explanation
+        content: |
+          Use select/number controls for on-demand route queries.
+          `sensor.zagreb_transport_next_trip_od_do` returns next trips in selected window.
+
+      - type: entities
+        title: Station board
+        entities:
+          - entity: select.zet_station
+          - entity: select.zet_board_route
+          - entity: select.zet_direction
+          - entity: number.zet_window_minutes
+          - entity: sensor.zagreb_transport_station_direction_board
+
+      - type: markdown
+        title: Station board explanation
+        content: |
+          Station board shows departures for a selected stop.
+          `direction` and `board_route` are optional filters.
+
+      - type: entities
+        title: Nearby board
+        entities:
+          - entity: select.zet_reference_person
+          - entity: number.zet_nearby_radius_meters
+          - entity: number.zet_window_minutes
+          - entity: sensor.zagreb_transport_nearby_board
+
+      - type: markdown
+        title: Nearby board explanation
+        content: |
+          Nearby board calculates nearest stops around selected reference.
+          If Recorder truncates attributes, use `stops_total/departures_total/attributes_truncated`.
+
+      - type: markdown
+        title: Dynamic watch details
+        content: |
+          {% set rows = state_attr('sensor.zagreb_transport_watch_registry', 'watches') or [] %}
+          {% if rows | count == 0 %}
+          No watch entities.
+          {% else %}
+          {% for w in rows %}
+          {% set deps = state_attr(w.entity_id, 'departures') or [] %}
+          **{{ w.name }}** ({{ w.entity_id }})
+          {% if deps | count == 0 %}
+          - no departures in current window
+          {% else %}
+          {% for d in deps[:8] %}
+          - {{ d.line | default('?') }} | {{ d.direction | default('?') }} | in {{ d.minutes | default('?') }} min
+          {% endfor %}
+          {% endif %}
+
+          {% endfor %}
+          {% endif %}

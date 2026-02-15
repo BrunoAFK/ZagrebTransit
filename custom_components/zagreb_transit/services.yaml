@@ -1,0 +1,106 @@
+refresh_static:
+  name: Refresh static feed
+  description: Download latest static GTFS and validate active feed.
+
+refresh_realtime:
+  name: Refresh realtime
+  description: Refresh GTFS-RT trip updates.
+
+rebuild_indexes:
+  name: Rebuild indexes
+  description: Rebuild internal route/stop/trip indexes from active feed.
+
+validate_active_feed:
+  name: Validate active feed
+  description: Validate if active feed covers today's date.
+
+force_select_feed:
+  name: Force select feed
+  description: Force use of a cached feed version.
+  fields:
+    version:
+      name: Feed version
+      description: Cached feed version string (example hash_abc123).
+      required: true
+      example: hash_ab12cd34ef56
+
+add_watch:
+  name: Add watch
+  description: Create a new dynamic watch entity.
+  fields:
+    name:
+      name: Name
+      description: Friendly watch name. Also used to generate entity suffix.
+      required: true
+      example: Utrina -> Autobusni
+    watch_type:
+      name: Watch type
+      description: departure, od, nearby or station_query.
+      required: true
+      example: od
+    enabled:
+      name: Enabled
+      description: Enable watch immediately.
+      required: false
+      example: true
+    config:
+      name: Config
+      description: Watch configuration dictionary.
+      required: false
+      example:
+        vehicle_type: tram
+        from_query: Utrina
+        to_query: Autobusni
+        window_minutes: 30
+
+update_watch:
+  name: Update watch
+  description: Update an existing dynamic watch.
+  fields:
+    watch_id:
+      name: Watch ID
+      description: Existing watch identifier.
+      required: true
+      example: watch_1
+    name:
+      name: Name
+      description: Optional new name.
+      required: false
+      example: Kvart tram watch
+    enabled:
+      name: Enabled
+      description: Optional enabled flag.
+      required: false
+      example: true
+    config:
+      name: Config
+      description: Partial config update.
+      required: false
+      example:
+        window_minutes: 20
+        route_filter: "6"
+
+remove_watch:
+  name: Remove watch
+  description: Remove a dynamic watch.
+  fields:
+    watch_id:
+      name: Watch ID
+      description: Existing watch identifier.
+      required: true
+      example: watch_2
+
+duplicate_watch:
+  name: Duplicate watch
+  description: Copy an existing watch.
+  fields:
+    watch_id:
+      name: Watch ID
+      description: Existing watch identifier.
+      required: true
+      example: watch_1
+    name_suffix:
+      name: Name suffix
+      description: Suffix appended to duplicated watch name.
+      required: false
+      example: Copy

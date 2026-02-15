@@ -1,0 +1,117 @@
+type: sections
+max_columns: 1
+title: Zagreb Transit Demo (EN)
+path: zagreb-transit-demo-en
+sections:
+  - type: grid
+    cards:
+      - type: markdown
+        title: 0) How to use this demo
+        content: |
+          This demo is **generic** and not tied to private locations.
+          1. In **Settings**, choose route/direction/stops or station.
+          2. In **Output (watch)**, inspect active watch entity results.
+          3. In **Debug**, verify feed/realtime/registry status.
+          4. If there are no results, increase `window_minutes` or relax filters.
+
+      - type: markdown
+        title: 1) Overview
+        content: |
+          This dashboard is a technical integration overview.
+          - **Settings**: manual chain + core status.
+          - **Output**: active watch outputs with exact times.
+          - **Debug**: feed/realtime/watch-registry diagnostics.
+
+      - type: entities
+        title: 2) Settings (manual chain)
+        entities:
+          - entity: select.zet_route_mode
+          - entity: select.zet_route
+          - entity: select.zet_od_direction
+          - entity: select.zet_from_stop
+          - entity: select.zet_to_stop
+          - entity: select.zet_station
+          - entity: select.zet_direction
+          - entity: select.zet_board_route
+          - entity: number.zet_window_minutes
+          - entity: select.zet_reference_person
+          - entity: number.zet_nearby_radius_meters
+
+      - type: markdown
+        title: 2a) What each setting does
+        content: |
+          - `route_mode/route/od_*` -> manual route planner.
+          - `station/direction/board_route` -> single-station board.
+          - `reference_person/nearby_radius_meters` -> nearby board.
+          - `window_minutes` -> global time window for outputs.
+
+      - type: markdown
+        title: 3) Output (watch)
+        content: |
+          {% set rows = state_attr('sensor.zagreb_transport_watch_registry', 'watches') or [] %}
+          {% if rows | count == 0 %}
+          No configured watch entities.
+          {% else %}
+          {% for w in rows %}
+          {% set ent = w.entity_id %}
+          {% set deps = state_attr(ent, 'departures') or [] %}
+          {% set stations = state_attr(ent, 'stations') or [] %}
+          {% set stops = state_attr(ent, 'stops') or [] %}
+          **{{ w.name }}** (`{{ ent }}`)  
+          type={{ w.type }}, state={{ states(ent) }}, enabled={{ w.enabled }}{% if w.error %}, error={{ w.error }}{% endif %}
+
+          {% if deps | count > 0 %}
+          {% for d in deps[:8] %}
+          {% set dep_ts = as_timestamp(d.departure_rt | default(d.rt | default(d.planned | default('')))) %}
+          {% set arr_ts = as_timestamp(d.arrival_rt | default('')) %}
+          - {{ dep_ts | timestamp_custom('%H:%M', true) if dep_ts else '?' }}{% if arr_ts %} -> {{ arr_ts | timestamp_custom('%H:%M', true) }}{% endif %} | line {{ d.line | default('?') }} | {{ d.direction | default('?') }} | in {{ d.minutes | default('?') }} min
+          {% endfor %}
+          {% elif stations | count > 0 %}
+          {% for s in stations[:4] %}
+          - **{{ s.stop }}**
+          {% for d in (s.departures or [])[:4] %}
+            - {{ d.rt | default(d.planned | default('?')) }} | line {{ d.line | default('?') }} | {{ d.direction | default('?') }} | in {{ d.minutes | default('?') }} min
+          {% endfor %}
+          {% endfor %}
+          {% elif stops | count > 0 %}
+          {% for s in stops[:4] %}
+          - **{{ s.stop }}** ({{ s.distance_meters | default('?') }} m)
+          {% for d in (s.departures or [])[:3] %}
+            - {{ d.rt | default(d.planned | default('?')) }} | line {{ d.line | default('?') }} | {{ d.direction | default('?') }} | in {{ d.minutes | default('?') }} min
+          {% endfor %}
+          {% endfor %}
+          {% else %}
+          - no data in current time window
+          {% endif %}
+
+          {% endfor %}
+          {% endif %}
+
+      - type: entities
+        title: 4) Debug
+        entities:
+          - entity: sensor.zagreb_transport_feed_version_active
+          - entity: sensor.zagreb_transport_feed_valid_from
+          - entity: sensor.zagreb_transport_feed_valid_to
+          - entity: sensor.zagreb_transport_feed_source
+          - entity: sensor.zagreb_transport_realtime_status
+          - entity: sensor.zagreb_transport_realtime_last_timestamp
+          - entity: sensor.zagreb_transport_watch_registry
+          - entity: sensor.zagreb_transport_debug_info
+
+      - type: markdown
+        title: 4a) How to read debug
+        content: |
+          - `feed_source` shows whether latest or fallback feed is in use.
+          - `realtime_status` and `realtime_last_timestamp` show RT freshness.
+          - `watch_registry` shows active dynamic watch entities.
+          - `debug_info` contains fallback strategy and attempt details.
+
+      - type: markdown
+        title: 5) Debug dump
+        content: |
+          watch_registry:
+          {{ state_attr('sensor.zagreb_transport_watch_registry', 'watches') | tojson }}
+
+          debug:
+          {{ state_attr('sensor.zagreb_transport_debug_info', 'all') | default(state_attr('sensor.zagreb_transport_debug_info', 'watch_ids')) }}

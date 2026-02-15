@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Zagreb Transit Placeholder Icon">
+  <rect width="256" height="256" rx="32" fill="#0f4c81"/>
+  <rect x="48" y="52" width="160" height="118" rx="16" fill="#ffffff"/>
+  <rect x="64" y="72" width="56" height="34" rx="6" fill="#0f4c81"/>
+  <rect x="136" y="72" width="56" height="34" rx="6" fill="#0f4c81"/>
+  <circle cx="88" cy="188" r="20" fill="#ffffff"/>
+  <circle cx="168" cy="188" r="20" fill="#ffffff"/>
+  <circle cx="88" cy="188" r="10" fill="#0f4c81"/>
+  <circle cx="168" cy="188" r="10" fill="#0f4c81"/>
+</svg>

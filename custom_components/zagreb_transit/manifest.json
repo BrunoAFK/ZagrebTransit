@@ -1,0 +1,12 @@
+{
+  "domain": "zagreb_transit",
+  "name": "Zagreb Transit",
+  "version": "0.2.0",
+  "documentation": "https://github.com/BrunoAFK/homeassistant",
+  "issue_tracker": "https://github.com/BrunoAFK/homeassistant/issues",
+  "codeowners": ["@BrunoAFK"],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "integration_type": "service",
+  "requirements": ["gtfs-realtime-bindings>=1.0.0"]
+}

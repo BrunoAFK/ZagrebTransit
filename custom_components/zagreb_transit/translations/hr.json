@@ -1,0 +1,239 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zagreb Transit",
+        "description": "Kreiraj Zagreb Transit integraciju."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Dopuštena je samo jedna Zagreb Transit instanca."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zagreb Transit - Konfiguracija",
+        "description": "Odaberi što želiš konfigurirati.",
+        "data": {
+          "action": "Akcija"
+        }
+      },
+      "core": {
+        "title": "Osnovne postavke",
+        "description": "Intervali osvježavanja i osnovno ponašanje integracije.",
+        "data": {
+          "update_interval": "Interval koordinatora (sekunde)",
+          "realtime_interval": "Interval realtime osvježavanja (sekunde)",
+          "static_refresh_hours": "Interval static feed osvježavanja (sati)",
+          "default_window_minutes": "Zadani vremenski prozor prikaza (min)",
+          "notifications_enabled": "Uključi trajne obavijesti"
+        }
+      },
+      "add_watch_basic": {
+        "title": "Dodaj praćenje - Osnovno",
+        "description": "Kreiraj novi entitet praćenja i odaberi tip.",
+        "data": {
+          "name": "Naziv praćenja",
+          "watch_type": "Tip praćenja",
+          "enabled": "Uključen"
+        }
+      },
+      "watch_mode": {
+        "title": "Praćenje - Vozilo i vremenski prozor",
+        "description": "Odaberi tip vozila i vremenski prozor.",
+        "data": {
+          "vehicle_type": "Tip vozila",
+          "window_minutes": "Vremenski prozor (min)",
+          "limit": "Maks. polazaka",
+          "max_stops": "Maks. podudarnih stanica"
+        }
+      },
+      "watch_route": {
+        "title": "Praćenje - Ruta",
+        "description": "Lista ruta je filtrirana prema tipu vozila.",
+        "data": {
+          "route_filter": "Ruta (opcionalno)"
+        }
+      },
+      "watch_direction": {
+        "title": "Praćenje - Smjer",
+        "description": "Lista smjerova je filtrirana prema odabranoj ruti.",
+        "data": {
+          "direction": "Smjer"
+        }
+      },
+      "watch_from": {
+        "title": "Praćenje - Početna stanica",
+        "description": "Početne stanice su filtrirane prema ruti i smjeru.",
+        "data": {
+          "from_query": "Početna stanica"
+        }
+      },
+      "watch_to": {
+        "title": "Praćenje - Odredišna stanica",
+        "description": "Odredišne stanice su nizvodno od odabrane početne stanice.",
+        "data": {
+          "to_query": "Odredišna stanica"
+        }
+      },
+      "watch_nearby_source": {
+        "title": "Praćenje - Izvor lokacije",
+        "description": "Prvo odaberi izvor lokacije, zatim konfiguriraj detalje.",
+        "data": {
+          "location_source_type": "Izvor lokacije"
+        }
+      },
+      "watch_nearby_location": {
+        "title": "Praćenje - Lokacija",
+        "description": "Postavi detalje lokacije za odabrani izvor.",
+        "data": {
+          "person_entity": "Entitet osobe",
+          "zone_entity": "Entitet zone",
+          "fixed_lat": "Fiksna latituda",
+          "fixed_lon": "Fiksna longituda"
+        }
+      },
+      "watch_nearby_filters": {
+        "title": "Praćenje - Filteri u blizini",
+        "description": "Postavi radijus, limite i vozilo/vremenski prozor za polaske u blizini.",
+        "data": {
+          "vehicle_type": "Tip vozila",
+          "window_minutes": "Vremenski prozor (min)",
+          "radius_meters": "Radijus (metri)",
+          "max_stops": "Maks. obližnjih stanica",
+          "limit_per_stop": "Maks. polazaka po stanici"
+        }
+      },
+      "watch_station_query": {
+        "title": "Praćenje - Upiti stanica",
+        "description": "Konfiguriraj nazive stanica koje se prate.",
+        "data": {
+          "station_queries": "Upiti stanica (odvojeno zarezom)",
+          "route_filter": "Ruta (opcionalno)",
+          "direction": "Smjer",
+          "max_stops": "Maks. podudarnih stanica",
+          "limit": "Maks. polazaka"
+        }
+      },
+      "edit_watch_select": {
+        "title": "Uredi praćenje",
+        "description": "Odaberi postojeće praćenje za uređivanje.",
+        "data": {
+          "watch_id": "Praćenje"
+        }
+      },
+      "remove_watch": {
+        "title": "Ukloni praćenje",
+        "description": "Odaberi postojeće praćenje za brisanje.",
+        "data": {
+          "watch_id": "Praćenje"
+        }
+      }
+    },
+    "error": {
+      "same_stop": "Početna i odredišna stanica ne mogu biti iste.",
+      "invalid_od_order": "Odabrana odredišna stanica nije iza početne stanice na ruti.",
+      "unknown": "Neočekivano stanje konfiguracije. Ponovno otvori Configure i pokušaj opet.",
+      "person_required": "Potreban je entitet osobe za izvor lokacije person.",
+      "zone_required": "Potreban je entitet zone za izvor lokacije zone.",
+      "fixed_required": "Potrebne su fiksna latituda i longituda za izvor lokacije fixed."
+    }
+  },
+  "services": {
+    "refresh_static": {
+      "name": "Osvježi static feed",
+      "description": "Preuzmi najnoviji static GTFS i validiraj aktivni feed."
+    },
+    "refresh_realtime": {
+      "name": "Osvježi realtime",
+      "description": "Osvježi GTFS-RT trip update podatke."
+    },
+    "rebuild_indexes": {
+      "name": "Rebuild indeksa",
+      "description": "Ponovno izgradi interne route/stop/trip indekse iz aktivnog feeda."
+    },
+    "validate_active_feed": {
+      "name": "Validiraj aktivni feed",
+      "description": "Provjeri pokriva li aktivni feed današnji datum."
+    },
+    "force_select_feed": {
+      "name": "Forsiraj odabir feeda",
+      "description": "Forsirano koristi cacheirani feed po verziji.",
+      "fields": {
+        "version": {
+          "name": "Verzija feeda",
+          "description": "String verzije cacheiranog feeda."
+        }
+      }
+    },
+    "add_watch": {
+      "name": "Dodaj praćenje",
+      "description": "Kreiraj novi dinamički entitet praćenja.",
+      "fields": {
+        "name": {
+          "name": "Naziv",
+          "description": "Prikazni naziv praćenja. Koristi se i za suffix naziva entiteta."
+        },
+        "watch_type": {
+          "name": "Tip praćenja",
+          "description": "Tip praćenja: departure, route (od), nearby, station_query."
+        },
+        "enabled": {
+          "name": "Uključeno",
+          "description": "Odmah uključi praćenje."
+        },
+        "config": {
+          "name": "Konfiguracija",
+          "description": "Konfiguracijski objekt praćenja."
+        }
+      }
+    },
+    "update_watch": {
+      "name": "Ažuriraj praćenje",
+      "description": "Ažuriraj postojeće dinamičko praćenje.",
+      "fields": {
+        "watch_id": {
+          "name": "ID praćenja",
+          "description": "Identifikator postojećeg praćenja."
+        },
+        "name": {
+          "name": "Naziv",
+          "description": "Opcionalni novi naziv praćenja."
+        },
+        "enabled": {
+          "name": "Uključeno",
+          "description": "Opcionalna zastavica uključenosti praćenja."
+        },
+        "config": {
+          "name": "Konfiguracija",
+          "description": "Djelomična ili potpuna konfiguracija praćenja."
+        }
+      }
+    },
+    "remove_watch": {
+      "name": "Ukloni praćenje",
+      "description": "Ukloni dinamičko praćenje.",
+      "fields": {
+        "watch_id": {
+          "name": "ID praćenja",
+          "description": "Identifikator postojećeg praćenja."
+        }
+      }
+    },
+    "duplicate_watch": {
+      "name": "Dupliciraj praćenje",
+      "description": "Dupliciraj postojeće praćenje.",
+      "fields": {
+        "watch_id": {
+          "name": "ID praćenja",
+          "description": "Identifikator postojećeg praćenja."
+        },
+        "name_suffix": {
+          "name": "Suffix naziva",
+          "description": "Suffix koji se dodaje nazivu dupliciranog praćenja."
+        }
+      }
+    }
+  }
+}

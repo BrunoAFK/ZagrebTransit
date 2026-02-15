@@ -1,0 +1,239 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zagreb Transit",
+        "description": "Create Zagreb Transit integration entry."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Only one Zagreb Transit instance is allowed."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zagreb Transit - Configure",
+        "description": "Choose what you want to configure.",
+        "data": {
+          "action": "Action"
+        }
+      },
+      "core": {
+        "title": "Core Settings",
+        "description": "Integration refresh and default behavior.",
+        "data": {
+          "update_interval": "Coordinator update interval (seconds)",
+          "realtime_interval": "Realtime refresh interval (seconds)",
+          "static_refresh_hours": "Static feed refresh interval (hours)",
+          "default_window_minutes": "Default station board window (minutes)",
+          "notifications_enabled": "Enable persistent notifications"
+        }
+      },
+      "add_watch_basic": {
+        "title": "Add Watch - Basics",
+        "description": "Create a new tracking entity and choose watch type.",
+        "data": {
+          "name": "Watch name",
+          "watch_type": "Watch type",
+          "enabled": "Enabled"
+        }
+      },
+      "watch_mode": {
+        "title": "Watch - Vehicle & Window",
+        "description": "Choose vehicle mode and timing window.",
+        "data": {
+          "vehicle_type": "Vehicle type",
+          "window_minutes": "Window (minutes)",
+          "limit": "Max departures",
+          "max_stops": "Max matched stops"
+        }
+      },
+      "watch_route": {
+        "title": "Watch - Route",
+        "description": "Route list is filtered by vehicle type.",
+        "data": {
+          "route_filter": "Route (optional)"
+        }
+      },
+      "watch_direction": {
+        "title": "Watch - Direction",
+        "description": "Direction list is filtered by selected route.",
+        "data": {
+          "direction": "Direction"
+        }
+      },
+      "watch_from": {
+        "title": "Watch - Start Stop",
+        "description": "Start stop list is filtered by route and direction.",
+        "data": {
+          "from_query": "Start stop"
+        }
+      },
+      "watch_to": {
+        "title": "Watch - Destination Stop",
+        "description": "Destination stop list is downstream from selected start stop.",
+        "data": {
+          "to_query": "Destination stop"
+        }
+      },
+      "watch_nearby_source": {
+        "title": "Watch - Nearby Source",
+        "description": "Choose location source type first, then configure details.",
+        "data": {
+          "location_source_type": "Location source"
+        }
+      },
+      "watch_nearby_location": {
+        "title": "Watch - Nearby Location",
+        "description": "Set location details for the selected source type.",
+        "data": {
+          "person_entity": "Person entity",
+          "zone_entity": "Zone entity",
+          "fixed_lat": "Fixed latitude",
+          "fixed_lon": "Fixed longitude"
+        }
+      },
+      "watch_nearby_filters": {
+        "title": "Watch - Nearby Filters",
+        "description": "Set nearby radius, limits, and vehicle/window settings.",
+        "data": {
+          "vehicle_type": "Vehicle type",
+          "window_minutes": "Window (minutes)",
+          "radius_meters": "Radius (meters)",
+          "max_stops": "Max nearby stops",
+          "limit_per_stop": "Max departures per stop"
+        }
+      },
+      "watch_station_query": {
+        "title": "Watch - Station Queries",
+        "description": "Configure station names to monitor.",
+        "data": {
+          "station_queries": "Station queries (comma-separated)",
+          "route_filter": "Route (optional)",
+          "direction": "Direction",
+          "max_stops": "Max matched stops",
+          "limit": "Max departures"
+        }
+      },
+      "edit_watch_select": {
+        "title": "Edit Watch",
+        "description": "Select an existing watch to edit.",
+        "data": {
+          "watch_id": "Watch"
+        }
+      },
+      "remove_watch": {
+        "title": "Remove Watch",
+        "description": "Select an existing watch to remove.",
+        "data": {
+          "watch_id": "Watch"
+        }
+      }
+    },
+    "error": {
+      "same_stop": "Start and destination stop cannot be the same.",
+      "invalid_od_order": "Selected destination is not downstream from selected start stop.",
+      "unknown": "Unexpected flow state. Reopen Configure and try again.",
+      "person_required": "Person entity is required for person location source.",
+      "zone_required": "Zone entity is required for zone location source.",
+      "fixed_required": "Fixed latitude and longitude are required for fixed location source."
+    }
+  },
+  "services": {
+    "refresh_static": {
+      "name": "Refresh static feed",
+      "description": "Download latest static GTFS and validate active feed."
+    },
+    "refresh_realtime": {
+      "name": "Refresh realtime",
+      "description": "Refresh GTFS-RT trip updates."
+    },
+    "rebuild_indexes": {
+      "name": "Rebuild indexes",
+      "description": "Rebuild internal route/stop/trip indexes from active feed."
+    },
+    "validate_active_feed": {
+      "name": "Validate active feed",
+      "description": "Validate if active feed covers today's date."
+    },
+    "force_select_feed": {
+      "name": "Force select feed",
+      "description": "Force use of a cached feed version.",
+      "fields": {
+        "version": {
+          "name": "Feed version",
+          "description": "Cached feed version string."
+        }
+      }
+    },
+    "add_watch": {
+      "name": "Add watch",
+      "description": "Create a new dynamic watch entity.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Friendly watch name. Also used for entity name suffix."
+        },
+        "watch_type": {
+          "name": "Watch type",
+          "description": "Watch type: departure, route (od), nearby, station_query."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Enable watch immediately."
+        },
+        "config": {
+          "name": "Config",
+          "description": "Watch configuration object."
+        }
+      }
+    },
+    "update_watch": {
+      "name": "Update watch",
+      "description": "Update an existing dynamic watch.",
+      "fields": {
+        "watch_id": {
+          "name": "Watch ID",
+          "description": "Existing watch identifier."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Optional new watch name."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Optional watch enabled flag."
+        },
+        "config": {
+          "name": "Config",
+          "description": "Partial or full watch configuration."
+        }
+      }
+    },
+    "remove_watch": {
+      "name": "Remove watch",
+      "description": "Remove a dynamic watch.",
+      "fields": {
+        "watch_id": {
+          "name": "Watch ID",
+          "description": "Existing watch identifier."
+        }
+      }
+    },
+    "duplicate_watch": {
+      "name": "Duplicate watch",
+      "description": "Duplicate an existing watch.",
+      "fields": {
+        "watch_id": {
+          "name": "Watch ID",
+          "description": "Existing watch identifier."
+        },
+        "name_suffix": {
+          "name": "Name suffix",
+          "description": "Suffix added to the duplicated watch name."
+        }
+      }
+    }
+  }
+}

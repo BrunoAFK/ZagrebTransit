@@ -1,0 +1,173 @@
+type: sections
+max_columns: 4
+title: Transit Test
+path: transit_test
+sections:
+  - type: grid
+    cards:
+      - type: custom:tabbed-card
+        tabs:
+          - attributes:
+              label: 1 Core
+            card:
+              type: vertical-stack
+              cards:
+                - type: entities
+                  title: Core Health
+                  entities:
+                    - entity: sensor.zagreb_transport_feed_version_active
+                    - entity: sensor.zagreb_transport_feed_valid_from
+                    - entity: sensor.zagreb_transport_feed_valid_to
+                    - entity: sensor.zagreb_transport_feed_source
+                    - entity: sensor.zagreb_transport_realtime_status
+                    - entity: sensor.zagreb_transport_realtime_last_timestamp
+                    - entity: sensor.zagreb_transport_watch_registry
+                    - entity: sensor.zagreb_transport_debug_info
+                - type: markdown
+                  title: Check
+                  content: |
+                    T01 prolaz:
+                    - feed source nije `none`
+                    - realtime status nije `unavailable`
+                    - registry postoji
+
+          - attributes:
+              label: 2 Planner
+            card:
+              type: vertical-stack
+              cards:
+                - type: entities
+                  title: OD Planner Controls
+                  entities:
+                    - entity: select.zet_route_mode
+                    - entity: select.zet_route
+                    - entity: select.zet_od_direction
+                    - entity: select.zet_from_stop
+                    - entity: select.zet_to_stop
+                    - entity: number.zet_window_minutes
+                    - entity: sensor.zagreb_transport_next_trip_od_do
+                - type: markdown
+                  title: OD Output
+                  content: |
+                    {% set up = state_attr('sensor.zagreb_transport_next_trip_od_do', 'upcoming') or [] %}
+                    {% if up | count == 0 %}
+                    Nema OD polazaka u prozoru.
+                    {% else %}
+                    {% for d in up[:8] %}
+                    {% set dep_ts = as_timestamp(d.departure_rt | default('')) %}
+                    {% set arr_ts = as_timestamp(d.arrival_rt | default('')) %}
+                    - {{ dep_ts | timestamp_custom('%H:%M', true) if dep_ts else '?' }} -> {{ arr_ts | timestamp_custom('%H:%M', true) if arr_ts else '?' }} | linija {{ d.line | default('?') }} | {{ d.direction | default('?') }} | delay {{ d.delay_minutes | default('?') }} min
+                    {% endfor %}
+                    {% endif %}
+
+          - attributes:
+              label: 3 Station
+            card:
+              type: vertical-stack
+              cards:
+                - type: entities
+                  title: Station Board Controls
+                  entities:
+                    - entity: select.zet_station
+                    - entity: select.zet_board_route
+                    - entity: select.zet_direction
+                    - entity: number.zet_window_minutes
+                    - entity: sensor.zagreb_transport_station_direction_board
+                - type: markdown
+                  title: Station Departures
+                  content: |
+                    {% set deps = state_attr('sensor.zagreb_transport_station_direction_board', 'departures') or [] %}
+                    {% if deps | count == 0 %}
+                    Nema polazaka za odabranu stanicu/smjer.
+                    {% else %}
+                    {% for d in deps[:20] %}
+                    {% set ts = as_timestamp(d.rt | default(d.planned | default(''))) %}
+                    - {{ ts | timestamp_custom('%H:%M', true) if ts else '?' }} | linija {{ d.line | default('?') }} | {{ d.direction | default('?') }} | za {{ d.minutes | default('?') }} min
+                    {% endfor %}
+                    {% endif %}
+
+          - attributes:
+              label: 4 Nearby
+            card:
+              type: vertical-stack
+              cards:
+                - type: entities
+                  title: Nearby Controls
+                  entities:
+                    - entity: select.zet_reference_person
+                    - entity: number.zet_nearby_radius_meters
+                    - entity: number.zet_window_minutes
+                    - entity: sensor.zagreb_transport_nearby_board
+                - type: markdown
+                  title: Nearby Stops
+                  content: |
+                    {% set stops = state_attr('sensor.zagreb_transport_nearby_board', 'stops') or [] %}
+                    {% if stops | count == 0 %}
+                    Nema nearby rezultata u ovom radijusu/prozoru.
+                    {% else %}
+                    {% for s in stops[:8] %}
+                    - **{{ s.stop }}** ({{ s.distance_meters | default('?') }} m)
+                    {% for d in (s.departures or [])[:4] %}
+                      - linija {{ d.line | default('?') }} prema {{ d.direction | default('?') }} za {{ d.minutes | default('?') }} min
+                    {% endfor %}
+                    {% endfor %}
+                    {% endif %}
+
+          - attributes:
+              label: 5 Watches
+            card:
+              type: vertical-stack
+              cards:
+                - type: entities
+                  title: Watch Registry
+                  entities:
+                    - entity: sensor.zagreb_transport_watch_registry
+                - type: markdown
+                  title: Watches List + Output
+                  content: |
+                    {% set rows = state_attr('sensor.zagreb_transport_watch_registry', 'watches') or [] %}
+                    {% if rows | count == 0 %}
+                    Nema watch entiteta.
+                    {% else %}
+                    {% for w in rows %}
+                    **{{ w.name }}** | {{ w.type }} | enabled={{ w.enabled }}
+                    entity={{ w.entity_id }}
+                    expected={{ w.expected_entity_id | default('n/a') }}
+                    state={{ states(w.entity_id) }}{% if w.error %} | error={{ w.error }}{% endif %}
+                    {% set deps = state_attr(w.entity_id, 'departures') or [] %}
+                    {% if deps | count > 0 %}
+                    {% for d in deps[:5] %}
+                    - {{ d.line | default('?') }} {{ d.direction | default('?') }} za {{ d.minutes | default('?') }} min
+                    {% endfor %}
+                    {% endif %}
+
+                    {% endfor %}
+                    {% endif %}
+
+          - attributes:
+              label: 6 Debug
+            card:
+              type: vertical-stack
+              cards:
+                - type: markdown
+                  title: Debug Info
+                  content: |
+                    debug status: {{ states('sensor.zagreb_transport_debug_info') }}
+
+                    feed:
+                    - version: {{ states('sensor.zagreb_transport_feed_version_active') }}
+                    - valid_from: {{ states('sensor.zagreb_transport_feed_valid_from') }}
+                    - valid_to: {{ states('sensor.zagreb_transport_feed_valid_to') }}
+                    - source: {{ states('sensor.zagreb_transport_feed_source') }}
+
+                    realtime:
+                    - status: {{ states('sensor.zagreb_transport_realtime_status') }}
+                    - last_ts: {{ states('sensor.zagreb_transport_realtime_last_timestamp') }}
+
+                    watch_ids:
+                    {{ state_attr('sensor.zagreb_transport_watch_registry', 'watch_ids') }}
+
+                - type: markdown
+                  title: Test Procedure
+                  content: |
+                    Koristi `TRANSIT_TEST_PLAN.md` u rootu i prolazi T01 -> T12 redom.
